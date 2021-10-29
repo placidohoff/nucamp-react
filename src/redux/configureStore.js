@@ -17,10 +17,10 @@ export const ConfigureStore = () => {
             partners: Partners,
             promotions: Promotions,
             ...createForms({
-                //the modelname for our form is feebackForm,
-                    //its initial data is InitialFeedback.
-                    //changing this form will hit this reducer:
                 feedbackForm: InitialFeedback
+                //^the modelname for our form is feebackForm,
+                //its initial data is InitialFeedback.
+                //changing this form will hit this reducer:
             })
         }),
 
