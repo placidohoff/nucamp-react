@@ -1,15 +1,6 @@
 import * as ActionTypes from './ActionTypes'
 import { baseUrl } from '../shared/baseUrl'
 
-export const addComment = (campsiteId, rating, author, text) => ({
-    type: ActionTypes.ADD_COMMENT,
-    payload: {
-        campsiteId,
-        rating,
-        author,
-        text
-    }
-})
 
 //REDUX-THUNK SYNTAX: We run one function then the next
 //this is essentially nesting an arrow funciton within another arrow function
@@ -84,6 +75,53 @@ export const addComments = comments => ({
     type: ActionTypes.ADD_COMMENTS,
     payload: comments
 })
+
+export const addComment = comment => ({
+    type: ActionTypes.ADD_COMMENT,
+    payload: comment
+})
+
+//REDUX-THUNK:
+export const postComment = (campsiteId, rating, author, text) => dispatch => {
+    const newComment = {
+        campsiteId: campsiteId,
+        rating: rating,
+        author: author,
+        text: text
+    }
+
+    newComment.date = new Date().toISOString()
+
+    return fetch(baseUrl + 'comments', {
+        method: "POST",
+        //Convert our newComments object to a true JSON notation with "all strings"
+        body: JSON.stringify(newComment),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+        //When we post, the response we get is a copy of what we posted with a database id.. if successful. 
+        //We will take this echo and put it in our state via dispatch
+        .then(response => {
+            if (response.ok) {
+                return response
+            } else {
+                const error = new Error(`Error ${response.status}: ${response.statusText}`)
+                error.response = response
+                throw error
+            }
+        },
+            error => { throw error }
+        )
+        //Re-convert our post back to regular non-stringified json
+        .then(response => response.json())
+        .then(response => dispatch(addComment(response)))
+        .catch(error => {
+            console.log('post comment', error.message)
+            alert('Your comment could not be posted\nError: ' + error.message)
+        })
+
+}
 
 
 
