@@ -8,6 +8,7 @@ import Contact from './ContactComponent';
 import About from './AboutComponent';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { actions } from 'react-redux-form'
 import { addComment, fetchCampsites } from '../redux/ActionCreators';
 
 const mapStateToProps = state => {
@@ -21,12 +22,17 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
     addComment: (campsiteId, rating, author, text) => (addComment(campsiteId, rating, author, text)),
-    fetchCampsites: () => (fetchCampsites())
+    fetchCampsites: () => (fetchCampsites()),
+    resetFeedbackForm: () => (actions.reset('feedbackForm'))
+    //^{actions} is imported from react-redux-from which is
+    //designed to make form data and redux store much easier
+    //{actions.reset(<modelName>) quickly allows us to reset the form of said <modelName>}
+    //we will pass this action as a props to <Contact>
 }
 
 class Main extends Component {
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.fetchCampsites()
     }
 
@@ -44,18 +50,18 @@ class Main extends Component {
             );
         };
 
-        const CampsiteWithId = ({match}) => {
+        const CampsiteWithId = ({ match }) => {
             return (
-                <CampsiteInfo 
-                    campsite={this.props.campsites.campsites.filter(campsite => campsite.id === +match.params.campsiteId)[0]} 
+                <CampsiteInfo
+                    campsite={this.props.campsites.campsites.filter(campsite => campsite.id === +match.params.campsiteId)[0]}
                     isLoading={this.props.campsites.isLoading}
                     errMess={this.props.campsites.errMess}
-                    comments={this.props.comments.filter(comment => comment.campsiteId === +match.params.campsiteId)} 
-                    
+                    comments={this.props.comments.filter(comment => comment.campsiteId === +match.params.campsiteId)}
+
                     addComment={this.props.addComment}
                 />
 
-                    
+
             );
         };
 
@@ -66,8 +72,14 @@ class Main extends Component {
                     <Route path='/home' component={HomePage} />
                     <Route exact path='/directory' render={() => <Directory campsites={this.props.campsites} />} />
                     <Route path='/directory/:campsiteId' component={CampsiteWithId} />
-                    <Route exact path='/contactus' component={Contact} />
-                    <Route exact path='/aboutus' render={() => <About partners={this.props.partners} /> } />
+                    <Route exact path='/contactus'
+                        render={() =>
+                            <Contact
+                                resetFeedbackForm={this.props.resetFeedbackForm}
+                            />
+                        }
+                    />
+                    <Route exact path='/aboutus' render={() => <About partners={this.props.partners} />} />
                     <Redirect to='/home' />
                 </Switch>
                 <Footer />
