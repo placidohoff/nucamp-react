@@ -10,6 +10,7 @@ import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { actions } from 'react-redux-form'
 import { postComment, fetchCampsites, fetchComments, fetchPromotions } from '../redux/ActionCreators';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 const mapStateToProps = state => {
     return {
@@ -24,10 +25,10 @@ const mapDispatchToProps = {
     postComment: (campsiteId, rating, author, text) => (postComment(campsiteId, rating, author, text)),
     fetchCampsites: () => (fetchCampsites()),
     resetFeedbackForm: () => (actions.reset('feedbackForm')),
-        //^{actions} is imported from react-redux-from which is
-        //designed to make form data and redux store much easier
-        //{actions.reset(<modelName>) quickly allows us to reset the form of said <modelName>}
-        //we will pass this action as a props to <Contact>
+    //^{actions} is imported from react-redux-from which is
+    //designed to make form data and redux store much easier
+    //{actions.reset(<modelName>) quickly allows us to reset the form of said <modelName>}
+    //we will pass this action as a props to <Contact>
 
     fetchComments: () => (fetchComments()),
     fetchPromotions: () => (fetchPromotions())
@@ -75,20 +76,24 @@ class Main extends Component {
         return (
             <div>
                 <Header />
-                <Switch>
-                    <Route path='/home' component={HomePage} />
-                    <Route exact path='/directory' render={() => <Directory campsites={this.props.campsites} />} />
-                    <Route path='/directory/:campsiteId' component={CampsiteWithId} />
-                    <Route exact path='/contactus'
-                        render={() =>
-                            <Contact
-                                resetFeedbackForm={this.props.resetFeedbackForm}
+                <TransitionGroup>
+                    <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
+                        <Switch>
+                            <Route path='/home' component={HomePage} />
+                            <Route exact path='/directory' render={() => <Directory campsites={this.props.campsites} />} />
+                            <Route path='/directory/:campsiteId' component={CampsiteWithId} />
+                            <Route exact path='/contactus'
+                                render={() =>
+                                    <Contact
+                                        resetFeedbackForm={this.props.resetFeedbackForm}
+                                    />
+                                }
                             />
-                        }
-                    />
-                    <Route exact path='/aboutus' render={() => <About partners={this.props.partners} />} />
-                    <Redirect to='/home' />
-                </Switch>
+                            <Route exact path='/aboutus' render={() => <About partners={this.props.partners} />} />
+                            <Redirect to='/home' />
+                        </Switch>
+                    </CSSTransition> 
+                </TransitionGroup>
                 <Footer />
             </div>
         );
